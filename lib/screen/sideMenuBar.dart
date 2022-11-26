@@ -16,7 +16,7 @@ class SideMenuBar extends StatefulWidget {
 class _SideMenuBarState extends State<SideMenuBar> {
   @override
   void initState() {
-    CheckInternet().connectivity(context);
+    
     ColorMode().modeChanger();
     // TODO: implement initState
     super.initState();

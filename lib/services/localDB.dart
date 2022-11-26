@@ -6,6 +6,7 @@ class localDataSaver {
   static String emailKey = "EMAILKEY";
   static String imgKey = "IMAGEKEY";
   static String modeKey = "MODEKEY";
+  static String actionKey = "ACTIONKEY";
 
   static Future<bool> saveName(String userName) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
@@ -28,6 +29,12 @@ class localDataSaver {
     return await preferences.setString(modeKey, userMode);
   }
 
+  static Future<bool> saveAction(String userAction) async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    UserConstant.userAction = userAction;
+    return await preferences.setString(actionKey, userAction);
+  }
+
   static Future<String?> getName() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getString(nameKey);
@@ -46,5 +53,10 @@ class localDataSaver {
   static Future<String?> getMode() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     return preferences.getString(modeKey);
+  }
+
+  static Future<String?> getAction() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    return preferences.getString(actionKey);
   }
 }

@@ -34,7 +34,7 @@ class _CreateNoteViewState extends State<CreateNoteView> {
 
   @override
   void initState() {
-    CheckInternet().connectivity(context);
+    
     ColorMode().modeChanger();
     // TODO: implement initState
     super.initState();
@@ -47,11 +47,23 @@ class _CreateNoteViewState extends State<CreateNoteView> {
       appBar: AppBar(
         backgroundColor: bgColor,
         elevation: 0.0,
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(
+                color: white.withOpacity(0.8),
+                Icons.arrow_back,
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            );
+          },
+        ),
         actions: [
           IconButton(
               splashRadius: 20,
               onPressed: () async {
-                await CheckInternet().connectivity(context);
                 setState(() {
                   loading = true;
                 });

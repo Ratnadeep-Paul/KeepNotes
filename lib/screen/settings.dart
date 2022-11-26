@@ -29,7 +29,7 @@ class _SettingsState extends State<Settings> {
 
   @override
   void initState() {
-    CheckInternet().connectivity(context);
+    
     ColorMode().modeChanger();
     setMode();
     // TODO: implement initState

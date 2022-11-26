@@ -27,7 +27,7 @@ class _EditNoteViewState extends State<EditNoteView> {
 
   @override
   void initState() {
-    CheckInternet().connectivity(context);
+    
     newTitle = widget.note.title;
     newContent = widget.note.content;
     numColor = widget.note.background;
@@ -69,7 +69,6 @@ class _EditNoteViewState extends State<EditNoteView> {
           IconButton(
               splashRadius: 20,
               onPressed: () async {
-                await CheckInternet().connectivity(context);
                 setState(() {
                   loading = true;
                 });

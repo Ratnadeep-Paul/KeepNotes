@@ -25,13 +25,12 @@ class _NoteViewState extends State<NoteView> {
   bool loading = false;
 
   setBackground(int colorNum) async {
-    await CheckInternet().connectivity(context);
-
     setState(() {
       loading = true;
       numColor = colorNum;
     });
 
+    try {
     String apiUrl =
         "https://sharpwebtechnologies.com/KeepNotes/API/backgroundNote.php";
 
@@ -42,7 +41,10 @@ class _NoteViewState extends State<NoteView> {
         'background': colorNum.toString(),
         'user': UserConstant.userEmail.toString(),
       },
-    );
+    ); 
+    } catch (_){
+      UserConstant.userAction = "true";
+    }
 
     await NotesDatabase().updateNote(Note(
         id: widget.note.id,
@@ -59,7 +61,7 @@ class _NoteViewState extends State<NoteView> {
 
   @override
   void initState() {
-    CheckInternet().connectivity(context);
+    
     numColor = widget.note.background;
     pinned = widget.note.pin;
     ColorMode().modeChanger();
@@ -100,7 +102,7 @@ class _NoteViewState extends State<NoteView> {
           IconButton(
               splashRadius: 20,
               onPressed: () async {
-                CheckInternet().connectivity(context);
+                
 
                 setState(() {
                   pinned = !pinned;
@@ -126,7 +128,7 @@ class _NoteViewState extends State<NoteView> {
           IconButton(
               splashRadius: 20,
               onPressed: () async {
-                CheckInternet().connectivity(context);
+                
 
                 await Navigator.pushReplacement(
                     context,
@@ -147,7 +149,7 @@ class _NoteViewState extends State<NoteView> {
           IconButton(
               splashRadius: 20,
               onPressed: () async {
-                CheckInternet().connectivity(context);
+                
                 setState(() {
                   loading = true;
                 });
@@ -181,7 +183,7 @@ class _NoteViewState extends State<NoteView> {
             )
           : GestureDetector(
               onLongPress: () async {
-                CheckInternet().connectivity(context);
+                
 
                 await Navigator.pushReplacement(
                     context,

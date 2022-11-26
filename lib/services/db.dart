@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+import 'localDB.dart';
 import 'package:keep_notes/include/userConstant.dart';
 import 'package:keep_notes/model/notesModel.dart';
 import 'package:path/path.dart';
@@ -34,6 +37,30 @@ class NotesDatabase {
           ${NoteImpNames.createdTime} $textType,
           ${NoteImpNames.background} $textType
           )''');
+
+      String apiUrl =
+          "https://sharpwebtechnologies.com/KeepNotes/API/allNote.php";
+
+      Map response_notes = {};
+      Response response = await post(
+        Uri.parse(apiUrl),
+        body: {
+          'user': UserConstant.userEmail.toString(),
+        },
+      );
+      response_notes = jsonDecode(response.body);
+
+      for (int i = 0; i < response_notes["id"].length; i++) {
+        Note aNote = Note(
+            id: int.parse(response_notes["id"][i]),
+            title: response_notes["title"][i].toString(),
+            content: response_notes["content"][i].toString(),
+            pin: response_notes["pin"][i] == 1,
+            createdTime: DateTime.parse(response_notes["createdTime"][i]),
+            background: int.parse(response_notes["background"][i]));
+
+        await _database?.insert(NoteImpNames.TableName, aNote.toJson());
+      }
     }
 
     return _database;
@@ -44,21 +71,25 @@ class NotesDatabase {
 
     final id = await _database?.insert(NoteImpNames.TableName, note.toJson());
 
-    String apiUrl =
-        "https://sharpwebtechnologies.com/KeepNotes/API/createNote.php";
+    try {
+      String apiUrl =
+          "https://sharpwebtechnologies.com/KeepNotes/API/createNote.php";
 
-    Response response = await post(
-      Uri.parse(apiUrl),
-      body: {
-        'id': id.toString(),
-        'title': note.title.toString(),
-        'content': note.content.toString(),
-        'pin': (note.pin ? 1 : 0).toString(),
-        'createdTime': note.createdTime.toIso8601String(),
-        'background': note.background.toString(),
-        'user': UserConstant.userEmail.toString(),
-      },
-    );
+      Response response = await post(
+        Uri.parse(apiUrl),
+        body: {
+          'id': id.toString(),
+          'title': note.title.toString(),
+          'content': note.content.toString(),
+          'pin': (note.pin ? 1 : 0).toString(),
+          'createdTime': note.createdTime.toIso8601String(),
+          'background': note.background.toString(),
+          'user': UserConstant.userEmail.toString(),
+        },
+      );
+    } catch (e) {
+      await localDataSaver.saveAction("true");
+    }
 
     return note.copy(id: id);
   }
@@ -96,17 +127,21 @@ class NotesDatabase {
   Future pinNote(Note note) async {
     final _database = await openDb();
 
-    String apiUrl =
-        "https://sharpwebtechnologies.com/KeepNotes/API/pinNote.php";
+    try {
+      String apiUrl =
+          "https://sharpwebtechnologies.com/KeepNotes/API/pinNote.php";
 
-    Response response = await post(
-      Uri.parse(apiUrl),
-      body: {
-        'id': note.id.toString(),
-        'pin': (!note.pin ? 1 : 0).toString(),
-        'user': UserConstant.userEmail.toString(),
-      },
-    );
+      Response response = await post(
+        Uri.parse(apiUrl),
+        body: {
+          'id': note.id.toString(),
+          'pin': (!note.pin ? 1 : 0).toString(),
+          'user': UserConstant.userEmail.toString(),
+        },
+      );
+    } catch (e) {
+      await localDataSaver.saveAction("true");
+    }
 
     await _database!.update(
         NoteImpNames.TableName, {NoteImpNames.pin: !note.pin ? 1 : 0},
@@ -116,19 +151,23 @@ class NotesDatabase {
   Future updateNote(Note note) async {
     final _database = await openDb();
 
-    String apiUrl =
-        "https://sharpwebtechnologies.com/KeepNotes/API/editNote.php";
+    try {
+      String apiUrl =
+          "https://sharpwebtechnologies.com/KeepNotes/API/editNote.php";
 
-    Response response = await post(
-      Uri.parse(apiUrl),
-      body: {
-        'id': note.id.toString(),
-        'user': UserConstant.userEmail.toString(),
-        'title': note.title.toString(),
-        'content': note.content.toString(),
-        'createdTime' : note.createdTime.toIso8601String(),
-      },
-    );
+      Response response = await post(
+        Uri.parse(apiUrl),
+        body: {
+          'id': note.id.toString(),
+          'user': UserConstant.userEmail.toString(),
+          'title': note.title.toString(),
+          'content': note.content.toString(),
+          'createdTime': note.createdTime.toIso8601String(),
+        },
+      );
+    } catch (e) {
+      await localDataSaver.saveAction("true");
+    }
 
     await _database!.update(NoteImpNames.TableName, note.toJson(),
         where: '${NoteImpNames.id} = ?', whereArgs: [note.id]);
@@ -136,6 +175,21 @@ class NotesDatabase {
 
   Future deleteNote(int? id) async {
     final _database = await openDb();
+
+    try {
+      String apiUrl =
+          "https://sharpwebtechnologies.com/KeepNotes/API/deleteNote.php";
+
+      Response response = await post(
+        Uri.parse(apiUrl),
+        body: {
+          'id': id.toString(),
+          'user': UserConstant.userEmail.toString(),
+        },
+      );
+    } catch (e) {
+      await localDataSaver.saveAction("true");
+    }
 
     await _database!.delete(NoteImpNames.TableName,
         where: '${NoteImpNames.id} = ?', whereArgs: [id]);

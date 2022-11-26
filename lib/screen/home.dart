@@ -66,6 +66,8 @@ class _HomeState extends State<Home> {
       headingName = "ALL";
       readPinnedNotes();
     });
+
+    await CheckInternet().dataSync(context);
   }
 
   searchNote(String keyword) async {
@@ -99,7 +101,6 @@ class _HomeState extends State<Home> {
 
   @override
   void initState() {
-    CheckInternet().connectivity(context);
     focusNode = FocusNode();
     readAllEnrty();
     ColorMode().modeChanger();

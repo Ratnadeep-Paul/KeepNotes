@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:keep_notes/include/color.dart';
+import 'package:keep_notes/services/db.dart';
 import 'package:keep_notes/services/localDB.dart';
 import 'package:keep_notes/include/userConstant.dart';
 
@@ -19,7 +21,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
-  bool showSignin = false;
+  bool showSignin = true;
 
   void checkUser() async {
     UserConstant.userName = (await localDataSaver.getName()).toString();
@@ -44,6 +46,11 @@ class _LoginState extends State<Login> {
           UserConstant.userName = (await localDataSaver.getName()).toString();
           UserConstant.userEmail = (await localDataSaver.getEmail()).toString();
           UserConstant.userImg = (await localDataSaver.getImg()).toString();
+          setState(() {
+            showSignin = false;
+          });
+          await NotesDatabase().openDb();
+          await NotesDatabase().DBClose();
           Navigator.pushReplacementNamed(context, "/home");
         }
       }
@@ -52,7 +59,6 @@ class _LoginState extends State<Login> {
 
   @override
   void initState() {
-    CheckInternet().connectivity(context);
     checkUser();
     super.initState();
   }
@@ -105,20 +111,35 @@ class _LoginState extends State<Login> {
               ),
             ),
           ),
-          
-          showSignin? Positioned(
-            bottom: 10,
-            child: Center(
-              child: Center(
-                  child: SignInButton(
-                Buttons.Google,
-                onPressed: () async {
-                  User? isUser = await signInWithGoogle();
-                  authUser(isUser!);
-                },
-              )),
-            ),
-          ) : SizedBox(height: 0,)
+          showSignin
+              ? Positioned(
+                  bottom: 10,
+                  child: Center(
+                    child: Center(
+                        child: SignInButton(
+                      Buttons.Google,
+                      onPressed: () async {
+                        try {
+                          await CheckInternet().connectivity(context);
+                          User? isUser = await signInWithGoogle();
+                          authUser(isUser!);
+                        } catch (_) {
+                          Fluttertoast.showToast(
+                              msg: "Internet Is Not Connected",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.CENTER,
+                              timeInSecForIosWeb: 1,
+                              backgroundColor: Color.fromARGB(216, 255, 57, 54),
+                              textColor: Color.fromARGB(255, 255, 255, 255),
+                              fontSize: 16.0);
+                        }
+                      },
+                    )),
+                  ),
+                )
+              : SizedBox(
+                  height: 0,
+                )
         ],
       ),
     );
